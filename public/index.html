@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poll Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Real-Time Poll Application</h1>
+    </header>
+    <main>
+        <section id="poll">
+            <h2>What is your favorite programming language?</h2>
+            <form>
+                <input type="radio" id="javascript" name="language" value="JavaScript">
+                <label for="javascript">JavaScript</label><br>
+                <input type="radio" id="python" name="language" value="Python">
+                <label for="python">Python</label><br>
+                <input type="radio" id="java" name="language" value="Java">
+                <label for="java">Java</label><br>
+                <input type="radio" id="csharp" name="language" value="C#">
+                <label for="csharp">C#</label><br>
+                <button type="submit">Vote</button>
+            </form>
+        </section>
+        <section id="results">
+            <h2>Poll Results</h2>
+            <div id="results-container">
+                <p>No votes yet.</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Real-Time Poll Application</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
