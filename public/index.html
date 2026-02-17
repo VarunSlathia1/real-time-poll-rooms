@@ -1,40 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poll Application</title>
-    <link rel="stylesheet" href="styles.css">
+  <title>Real-Time Poll Rooms</title>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Real-Time Poll Application</h1>
-    </header>
-    <main>
-        <section id="poll">
-            <h2>What is your favorite programming language?</h2>
-            <form>
-                <input type="radio" id="javascript" name="language" value="JavaScript">
-                <label for="javascript">JavaScript</label><br>
-                <input type="radio" id="python" name="language" value="Python">
-                <label for="python">Python</label><br>
-                <input type="radio" id="java" name="language" value="Java">
-                <label for="java">Java</label><br>
-                <input type="radio" id="csharp" name="language" value="C#">
-                <label for="csharp">C#</label><br>
-                <button type="submit">Vote</button>
-            </form>
-        </section>
-        <section id="results">
-            <h2>Poll Results</h2>
-            <div id="results-container">
-                <p>No votes yet.</p>
-            </div>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Real-Time Poll Application</p>
-    </footer>
-    <script src="script.js"></script>
+  <h1>Create Poll</h1>
+
+  <input id="question" placeholder="Enter question" />
+  <br><br>
+  <input class="option" placeholder="Option 1" />
+  <br><br>
+  <input class="option" placeholder="Option 2" />
+  <br><br>
+
+  <button onclick="createPoll()">Create Poll</button>
+
+  <hr>
+
+  <div id="pollSection" style="display:none;">
+    <h2 id="pollQuestion"></h2>
+    <div id="options"></div>
+  </div>
+
+<script>
+const socket = io();
+
+async function createPoll() {
+  const question = document.getElementById("question").value;
+  const options = Array.from(document.getElementsByClassName("option"))
+                      .map(o => o.value);
+
+  const res = await fetch("/api/polls", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ question, options })
+  });
+
+  const data = await res.json();
+  loadPoll(data.pollId);
+}
+
+async function loadPoll(pollId) {
+  const res = await fetch(`/api/polls/${pollId}`);
+  const poll = await res.json();
+
+  document.getElementById("pollSection").style.display = "block";
+  document.getElementById("pollQuestion").innerText = poll.question;
+
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+
+  poll.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = `${opt.text} (${opt.votes})`;
+    btn.onclick = () => vote(poll.id, opt.id);
+    optionsDiv.appendChild(btn);
+    optionsDiv.appendChild(document.createElement("br"));
+  });
+
+  socket.emit("subscribe", poll.id);
+}
+
+function vote(pollId, optionId) {
+  socket.emit("vote", {
+    pollId,
+    optionId,
+    clientIP: "anonymous",
+    deviceFingerprint: navigator.userAgent
+  });
+}
+
+socket.on("poll:update", data => {
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+
+  data.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.innerText = `${opt.text} (${opt.votes})`;
+    optionsDiv.appendChild(btn);
+    optionsDiv.appendChild(document.createElement("br"));
+  });
+});
+</script>
 </body>
 </html>
