@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
  poll.voters.push({ clientIP, timestamp: new Date() });
  const option = poll.options.find(opt => opt.id === optionId);
  option.votes++;
- io.emit(`poll:${pollId}:update`, { options: poll.options.map(opt => ({ id: opt.id, text: opt.text, votes: opt.votes })), totalVotes: poll.options.reduce((sum, opt) => sum + opt.votes, 0) });
+ io.emit("poll:update", { options: poll.options.map(opt => ({ id: opt.id, text: opt.text, votes: opt.votes })), totalVotes: poll.options.reduce((sum, opt) => sum + opt.votes, 0) });
  socket.emit('vote:success', { message: 'Vote recorded successfully' });
  } catch (error) {
  console.error('Error processing vote:', error);
